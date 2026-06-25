@@ -1,10 +1,7 @@
 ﻿import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,13 +24,13 @@ app.post('/api/chat', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': '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',
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 500,
-        system: systemPrompt || 'You are helpful.',
+        system: systemPrompt || 'You are Grace, a warm dementia companion.',
         messages: messages
       })
     });
@@ -46,10 +43,33 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+app.post('/api/tts', async (req, res) => {
+  try {
+    const { text, voice_id } = req.body;
+    const response = await fetch(https://api.elevenlabs.io/v1/text-to-speech/, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'xi-api-key': '63c87684dfd117acf8637545e8b44f3dea0c1711f3e1afc323839b7534322004'
+      },
+      body: JSON.stringify({
+        text: text,
+        model_id: 'eleven_monolingual_v1',
+        voice_settings: { stability: 0.5, similarity_boost: 0.75 }
+      })
+    });
+    const buffer = await response.arrayBuffer();
+    res.set('Content-Type', 'audio/mpeg');
+    res.send(Buffer.from(buffer));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(port, () => {
-  console.log('Memory Mirror Backend running on port ' + port);
+  console.log('Memory Mirror running on port ' + port);
 });
