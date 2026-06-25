@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -24,7 +24,7 @@ app.post('/api/chat', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': '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',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
@@ -46,11 +46,12 @@ app.post('/api/chat', async (req, res) => {
 app.post('/api/tts', async (req, res) => {
   try {
     const { text, voice_id } = req.body;
-    const response = await fetch(https://api.elevenlabs.io/v1/text-to-speech/, {
+    const vid = voice_id || 'EXAVITQu4vr4xnSDxMaL';
+    const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + vid, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'xi-api-key': '63c87684dfd117acf8637545e8b44f3dea0c1711f3e1afc323839b7534322004'
+        'xi-api-key': process.env.ELEVENLABS_API_KEY
       },
       body: JSON.stringify({
         text: text,
