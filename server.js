@@ -1,7 +1,6 @@
 ﻿import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import Anthropic from '@anthropic-ai/sdk';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -17,8 +16,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(join(__dirname, 'dist')));
 
-const client = new Anthropic();
-
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
@@ -26,15 +23,25 @@ app.get('/health', (req, res) => {
 app.post('/api/chat', async (req, res) => {
   try {
     const { messages, systemPrompt } = req.body;
-    const response = await client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 500,
-      system: systemPrompt || 'You are helpful.',
-      messages: messages,
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 500,
+        system: systemPrompt || 'You are helpful.',
+        messages: messages
+      })
     });
-    const content = response.content[0].type === 'text' ? response.content[0].text : 'Unable to respond';
-    res.json({ content });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'API error');
+    res.json({ content: data.content[0].text });
   } catch (error) {
+    console.error('Chat error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
