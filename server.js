@@ -28,9 +28,9 @@ app.post('/api/chat', async (req, res) => {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 500,
-        system: systemPrompt || 'You are Grace, a warm dementia companion.',
+        system: systemPrompt || 'You are Grace, a warm and caring dementia companion.',
         messages: messages
       })
     });
